@@ -1,0 +1,123 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<style type="text/css">
+table.gridtable {
+	font-family: verdana, arial, sans-serif;
+	font-size: 11px;
+	color: #333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+
+table.gridtable th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+}
+
+table.gridtable td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+}
+</style>
+
+<!-- Table goes in the document BODY -->
+<fieldset>
+	<legend>SEARCH HISTORY TRANSACTIONS</legend>
+	<input type="button" name="login" value="search all transactions"
+		onclick="search()" />
+	<table class="gridtable" id="table">
+		<tr>
+			<th>DoctorId</th>
+			<th>TransactionId</th>
+			<th>DiseaseInfo</th>
+			<th>Consultation</th>
+			<th>Price</th>
+			<th>PatientId</th>
+			<th>Pay condition</th>
+		</tr>
+	</table>
+</fieldset>
+<fieldset>
+	<legend>APPLY TRANSACTIONS</legend>
+	Patient ID: <input type="text" id="patientId" size="20" maxlength="20" />
+	Doctor ID: <input type="text" id="doctorId" size="20" maxlength="20" />
+	Transaction ID: <input type="text" id="transactionId" size="20"
+		maxlength="40" /> <input type="button" name="login" value="Apply"
+		onclick="insurerPay()" />
+</fieldset>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script>
+	function insurerPay() {
+		var patientId = document.getElementById("patientId").value;
+		var doctorId = document.getElementById("doctorId").value;
+		var transactionId = document.getElementById("transactionId").value;
+		var data = {
+			"$class" : "org.example.mynetwork.insurePay",
+			"patient" : "resource:org.example.mynetwork.Patient#" + patientId,
+			"doctor" : "resource:org.example.mynetwork.Doctor#" + doctorId,
+			"bill" : "resource:org.example.mynetwork.Bill#" + transactionId
+		}
+		$.ajax({
+			type : 'POST',
+			url : "http://localhost:3000/api/insurePay",
+			data : JSON.stringify(data),
+			contentType : "application/json",
+			dataType : "json",
+			error : function() {
+				alert("ERROR!");
+			},
+			success : function(res) {
+				alert("Applied successfully, please search again.")
+			}
+		});
+	}
+	function search() {
+		var data = {}
+		$.ajax({
+			type : 'GET',
+			url : "http://localhost:3000/api/Bill",
+			data : JSON.stringify(data),
+			contentType : "application/json",
+			dataType : "json",
+			error : function() {
+				alert("ERROR!");
+			},
+			success : function(res) {
+
+				var table = document.getElementById("table");
+				table.innerHTML = "";
+				table.innerHTML = "<tr><th>DoctorId</th><th>TransactionId</th><th>DiseaseInfo</th><th>Consultation</th><th>Price</th><th>PatientId</th><th>Payment condition</th></tr>";
+				for (var i = 0; i < res.length; i++) {
+					var row = table.insertRow(table.rows.length);
+					var c1 = row.insertCell(0);
+					c1.innerHTML = res[i].doctor;
+					var c2 = row.insertCell(1);
+					c2.innerHTML = res[i].BillSymbol;
+					var c3 = row.insertCell(2);
+					c3.innerHTML = res[i].DiseaseInfo;
+					var c4 = row.insertCell(3);
+					c4.innerHTML = res[i].Consultation;
+					var c5 = row.insertCell(4);
+					c5.innerHTML = res[i].Price;
+					var c6 = row.insertCell(5);
+					c6.innerHTML = res[i].patient
+					var c7 = row.insertCell(6);
+					if (!res[i].isPaid) {
+						c7.innerHTML = "unpaid";
+					} else {
+						c7.innerHTML = "paid";
+					}
+				}
+			}
+		});
+	}
+</script>
+</body>
+</html>
