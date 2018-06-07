@@ -1,8 +1,9 @@
-import "./../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import "./../node_modules/font-awesome/css/font-awesome.css";
-import "./../node_modules/animate.css";
-import "./styles/style.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "font-awesome/css/font-awesome.css";
+import "animate.css";
+import 'toastr/build/toastr.css'
 import './styles/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css'
+import "./styles/style.css";
 
 import React from "react";
 import ReactDOM from "react-dom";

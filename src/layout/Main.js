@@ -36,7 +36,7 @@ class Main extends Component {
     return (
       <div id="wrapper" className="top-navigation">
         <div id="page-wrapper">
-          <Nav></Nav>
+          <Nav account={this.props.account}></Nav>
           {this.state.alertShow ? 
             (<div className="row animated slideInDown">
               <Alert bsStyle={this.state.alert.type}>
@@ -45,7 +45,7 @@ class Main extends Component {
              </div>) : null}
           <div className="wrapper wrapper-content">
             <div className="container">
-              <Router match={this.props.match} showAlert={this.showAlert}></Router>
+              <Router match={this.props.match} showAlert={this.showAlert} {...{web3: this.props.web3, account: this.props.account, Credit:this.props.Credit}}></Router>
             </div>
           </div>
         </div>

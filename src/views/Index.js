@@ -1,10 +1,6 @@
 import React, { Component } from "react";
 import Box from "../common/Box";
-import { FormGroup, FormControl, Button, ControlLabel, HelpBlock, Modal } from "react-bootstrap";
-
-import contract from 'truffle-contract'
-import CreditContract from '../../build/contracts/Credit.json'
-import getWeb3 from '../utils/getWeb3'
+import { FormGroup, FormControl, Button, ControlLabel, HelpBlock, Modal } from "react-bootstrap"
 
 function FieldGroup({ id, label, help, validationState, ...props }) {
   return (
@@ -20,11 +16,7 @@ function FieldGroup({ id, label, help, validationState, ...props }) {
 class Index extends Component {
   constructor(props) {
     super(props);
-    console.log(props)
     this.state = {
-      web3: null,
-      account: '',
-      Credit: null,
       form: {
         identity: '',
         name: '',
@@ -39,48 +31,6 @@ class Index extends Component {
         []
       ]
     }
-  }
-
-  componentWillMount() {
-    // Get network provider and web3 instance.
-    // See utils/getWeb3 for more info.
-
-    getWeb3
-    .then(results => {
-      this.setState({
-        web3: results.web3
-      })
-
-      // Instantiate contract once web3 provided.
-      this.instantiateContract()
-    })
-    .catch(() => {
-      console.log('Error finding web3.')
-    })
-  }
-
-  instantiateContract () {
-    const Credit = contract(CreditContract)
-    Credit.setProvider(this.state.web3.currentProvider)
-    this.setState({
-      Credit
-    })
-
-    // Get the initial account balance so it can be displayed.
-    this.state.web3.eth.getAccounts((err, accounts) => {
-      if (err != null) {
-        alert("There was an error fetching your accounts.");
-        return;
-      }
-
-      if (accounts.length === 0) {
-        alert("Couldn't get any accounts! Make sure your Ethereum client is configured correctly.");
-        return;
-      }
-      this.setState({
-        account: accounts[0]
-      })
-    });
   }
 
   getValidationState = (value) => {
@@ -104,10 +54,9 @@ class Index extends Component {
           if (!this.state.form[element]) throw new Error();
         });
 
-        this.state.Credit.deployed().then((instance) => {
+        this.props.Credit.deployed().then((instance) => {
           const { identity, name, category, price } = this.state.form
-          console.log(identity)
-          return instance.create(identity, name, category, price, {from: this.state.account});
+          return instance.create(identity, name, category, price, {from: this.props.account});
         }).then(() => {
           this.props.showAlert({
             type: 'success',
@@ -126,12 +75,12 @@ class Index extends Component {
   }
 
   getInfo = () => {
-    const deployed = this.state.Credit.deployed()
+    const deployed = this.props.Credit.deployed()
     const blockInfo = deployed.then((instance) => {
-          return instance.all.call({from: this.state.account});
+          return instance.all.call({from: this.props.account});
     })
     const message = deployed.then((instance) => {
-        return instance.setCurrentBlockNum.call({from: this.state.account});
+        return instance.setCurrentBlockNum.call({from: this.props.account});
     })
     Promise.all([blockInfo, message])
       .then((result) => {
@@ -159,7 +108,7 @@ class Index extends Component {
             value={this.state.form.identity}
             onChange={this.handleChange}
             validationState={this.getValidationState(this.state.form.identity)}
-            help="必须输入"
+            help="id is required"
           />
           <FieldGroup
             id="name"
@@ -169,7 +118,7 @@ class Index extends Component {
             value={this.state.form.name}
             onChange={this.handleChange}
             validationState={this.getValidationState(this.state.form.name)}
-            help="必须输入"
+            help="name is required"
           />
           <FieldGroup
             id="category"
@@ -179,7 +128,7 @@ class Index extends Component {
             value={this.state.form.category}
             onChange={this.handleChange}
             validationState={this.getValidationState(this.state.form.category)}
-            help="必须输入"
+            help="illness is required"
           />
           <FieldGroup
             id="price"
@@ -189,7 +138,7 @@ class Index extends Component {
             value={this.state.form.price}
             onChange={this.handleChange}
             validationState={this.getValidationState(this.state.form.price)}
-            help="必须输入"
+            help="pay amount is required"
           />
           <div className="hr-line-dashed"></div>
           <FormGroup>
